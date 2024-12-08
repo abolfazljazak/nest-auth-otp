@@ -13,6 +13,13 @@ export class TypeOrmDbConfig implements TypeOrmOptionsFactory {
             password: this.configService.get('Db.password'),
             port: this.configService.get('Db.port'),
             host: this.configService.get('Db.host'),
+            database: this.configService.get("Db.database"),
+            synchronize: true,
+            autoLoadEntities: false,
+            entities: [
+                "dist/**/**/**/*.entity.{ts, js}",
+                "dist/**/**/*.entity.{ts, js}"
+            ]
         }
     }
 }
