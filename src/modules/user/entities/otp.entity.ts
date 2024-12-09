@@ -15,6 +15,6 @@ export class OtpEntity {
     @Column()
     userId: number
 
-    @OneToOne(() => OtpEntity, (user) => user.otp, {onDelete: "CASCADE"})
+    @OneToOne(() => UserEntity, (user) => user.otp, {onDelete: "CASCADE"})
     user: UserEntity
 }
