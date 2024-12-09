@@ -1,3 +1,15 @@
+## 0.2.0 (2024-12-09)
+
+### Feat
+
+- **auth**: add Auth module with OTP service and validation setup
+- **user-otp**: add OTP entity and establish relation with User entity
+- **user-module**: add User module with entities and basic structure
+
+### Refactor
+
+- **auth**: integrate TypeOrmModule with User and OTP entities
+
 ## 0.1.0 (2024-12-08)
 
 ### Feat
