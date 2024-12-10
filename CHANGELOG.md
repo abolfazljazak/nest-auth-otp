@@ -1,3 +1,12 @@
+## 0.3.0 (2024-12-09)
+
+### Feat
+
+- **auth**: add checkOtp method and controller for OTP verification
+- **auth**: implement sendOtp controller and OTP expiration validation
+- **user**: update UserEntity to make first_name, last_name, and otpId nullable
+- **main**: add global validation pipe to main application bootstrap
+
 ## 0.2.0 (2024-12-09)
 
 ### Feat

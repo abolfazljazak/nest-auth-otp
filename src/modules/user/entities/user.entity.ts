@@ -6,10 +6,10 @@ export class UserEntity {
     @PrimaryGeneratedColumn("increment")
     id: number
 
-    @Column()
+    @Column({nullable: true})
     first_name: string
 
-    @Column()
+    @Column({nullable: true})
     last_name: string
 
     @Column()
@@ -24,7 +24,7 @@ export class UserEntity {
     @UpdateDateColumn()
     updated_at: Date
 
-    @Column()
+    @Column({nullable: true})
     otpId: number
 
     @OneToOne(() => OtpEntity, (otp) => otp.user, {onDelete: "CASCADE"})
