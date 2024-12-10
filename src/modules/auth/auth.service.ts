@@ -5,23 +5,28 @@ import {
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { UserEntity } from "../user/entities/user.entity";
-import { DataTypeNotSupportedError, Repository } from "typeorm";
+import { Repository } from "typeorm";
 import { OtpEntity } from "../user/entities/otp.entity";
-import { CheckOtpDto, SendOtpDto } from "./auth.dto";
-import { randomInt } from "crypto";
+import { CheckOtpDto, SendOtpDto } from "./dto/auth.dto";
+import { randomInt, secureHeapUsed } from "crypto";
+import { JwtService } from "@nestjs/jwt";
+import { ConfigService } from "@nestjs/config";
+import { TokensPayload } from "./types/payload";
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(UserEntity)
     private userRepository: Repository<UserEntity>,
-    @InjectRepository(OtpEntity) private otpRepository: Repository<OtpEntity>
+    @InjectRepository(OtpEntity)
+    private otpRepository: Repository<OtpEntity>,
+    private jwtService: JwtService,
+    private configService: ConfigService
   ) {}
 
   async sendOtp(otpDto: SendOtpDto) {
     const { mobile } = otpDto;
     let user = await this.userRepository.findOneBy({ mobile });
-    const expriesIn = new Date(new Date().getTime() + 1000 * 60 * 2);
     if (!user) {
       user = this.userRepository.create({
         mobile: mobile,
@@ -62,9 +67,12 @@ export class AuthService {
         }
       );
     }
+    const {accessToken, refreshToken} = await this.makeTokensForUser({id: user.id, mobile: mobile})
     return {
-        message: "you logged-in successfully."
-    }
+      accessToken,
+      refreshToken,
+      message: "you logged-in successfully.",
+    };
   }
 
   async createOtpForUser(user: UserEntity) {
@@ -86,5 +94,27 @@ export class AuthService {
     otp = await this.otpRepository.save(otp);
     user.otpId = otp.id;
     await this.userRepository.save(user);
+  }
+
+  async makeTokensForUser(payload: TokensPayload) {
+    const accessToken = this.jwtService.sign(
+      payload,
+      { 
+        secret: this.configService.get("Jwt.accessTokenSecret"),
+        expiresIn: "30d"
+      }
+    );
+
+    const refreshToken = this.jwtService.sign(
+      payload,
+      { 
+        secret: this.configService.get("Jwt.refreshTokenSecret"),
+        expiresIn: "1y"
+      }
+    );
+    return {
+      accessToken,
+      refreshToken
+    }
   }
 }
