@@ -1,3 +1,10 @@
+## 0.4.0 (2024-12-10)
+
+### Feat
+
+- **auth**: implement JWT token generation and update OTP validation flow
+- **jwt**: add JWT configuration and integrate JwtModule
+
 ## 0.3.0 (2024-12-09)
 
 ### Feat
