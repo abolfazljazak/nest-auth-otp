@@ -4,6 +4,7 @@ import { TypeOrmDbConfig } from './config/typeorm.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { JwtModule } from '@nestjs/jwt';
 @Module({
   imports: [
     CustomConfigModule,
@@ -12,7 +13,8 @@ import { AuthModule } from './modules/auth/auth.module';
       inject: [TypeOrmDbConfig]
     }),
     UserModule,
-    AuthModule
+    AuthModule,
+    JwtModule
   ],
   controllers: [],
   providers: [TypeOrmDbConfig],
