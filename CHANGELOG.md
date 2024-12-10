@@ -1,3 +1,9 @@
+## 0.5.0 (2024-12-11)
+
+### Feat
+
+- **auth**: implement authentication guard and user profile endpoint
+
 ## 0.4.0 (2024-12-10)
 
 ### Feat
