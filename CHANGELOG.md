@@ -1,3 +1,9 @@
+## 0.6.0 (2024-12-11)
+
+### Feat
+
+- **auth**: add user signup functionality with password hashing
+
 ## 0.5.0 (2024-12-11)
 
 ### Feat
