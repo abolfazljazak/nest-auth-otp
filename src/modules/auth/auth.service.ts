@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   UnauthorizedException,
 } from "@nestjs/common";
@@ -7,11 +8,13 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { UserEntity } from "../user/entities/user.entity";
 import { Repository } from "typeorm";
 import { OtpEntity } from "../user/entities/otp.entity";
-import { CheckOtpDto, SendOtpDto } from "./dto/auth.dto";
-import { randomInt, secureHeapUsed } from "crypto";
+import { CheckOtpDto, SendOtpDto } from "./dto/otp.dto";
+import { randomInt } from "crypto";
 import { JwtService } from "@nestjs/jwt";
 import { ConfigService } from "@nestjs/config";
 import { TokensPayload } from "./types/payload";
+import { SignupDto } from "./dto/basic.dto";
+import { genSaltSync, hashSync } from "bcrypt"
 
 @Injectable()
 export class AuthService {
@@ -73,6 +76,44 @@ export class AuthService {
       refreshToken,
       message: "you logged-in successfully.",
     };
+  }
+
+  async signUp(signUp: SignupDto) {
+    const {first_name, last_name, email, password, confirm_password, mobile} = signUp
+    const checkEmail = await this.checkEmail(email)
+    const checkMobile = await this.checkMobile(mobile)
+
+    if (checkEmail) throw new ConflictException("email is already exist")
+    if (checkMobile) throw new ConflictException("mobile is already exist")
+
+    if (password !== confirm_password) {
+      throw new BadRequestException(
+        "password and confirm password should be equals"
+      )
+    }
+    const salt = genSaltSync(10)
+    let hashedPassword = hashSync(password, salt)
+    const user = this.userRepository.create({
+      first_name,
+      last_name,
+      mobile,
+      email,
+      password: hashedPassword
+    })
+    await this.userRepository.save(user)
+    return {
+      message: "user signup successfully"
+    }
+  }
+
+  async checkEmail(email: string) {
+    const user = this.userRepository.findOneBy({email: email})
+    if (user) { return true } else { return false }
+  }
+
+  async checkMobile(mobile: string) {
+    const user = this.userRepository.findOneBy({mobile: mobile})
+    if (user) { return true } else { return false }
   }
 
   async createOtpForUser(user: UserEntity) {
