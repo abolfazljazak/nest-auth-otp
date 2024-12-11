@@ -13,8 +13,8 @@ import { randomInt } from "crypto";
 import { JwtService } from "@nestjs/jwt";
 import { ConfigService } from "@nestjs/config";
 import { TokensPayload } from "./types/payload";
-import { SignupDto } from "./dto/basic.dto";
-import { genSaltSync, hashSync } from "bcrypt"
+import { LoginDto, SignupDto } from "./dto/basic.dto";
+import { compareSync, genSaltSync, hashSync } from "bcrypt"
 
 @Injectable()
 export class AuthService {
@@ -78,8 +78,8 @@ export class AuthService {
     };
   }
 
-  async signUp(signUp: SignupDto) {
-    const {first_name, last_name, email, password, confirm_password, mobile} = signUp
+  async signUp(signUpDto: SignupDto) {
+    const {first_name, last_name, email, password, confirm_password, mobile} = signUpDto
     const checkEmail = await this.checkEmail(email)
     const checkMobile = await this.checkMobile(mobile)
 
@@ -103,6 +103,24 @@ export class AuthService {
     await this.userRepository.save(user)
     return {
       message: "user signup successfully"
+    }
+  }
+
+  async login(loginDto: LoginDto) {
+    const { email, password } = loginDto
+    const user = await this.userRepository.findOneBy({email})
+    if (!user)
+      throw new UnauthorizedException("username or password is incorrent")
+    if (!compareSync(password, user.password))
+      throw new UnauthorizedException("username or password is incorrent")
+    const { accessToken, refreshToken } = await this.makeTokensForUser({
+      mobile: user.mobile,
+      id: user.id
+    })
+    return {
+      accessToken,
+      refreshToken,
+      message: "you logged-in successfully"
     }
   }
 
